@@ -171,8 +171,7 @@ fi
 # -----------------------------------------------------------
 date
 printf "\n --- Creating an instance of the IBM Blockchain Platform service ---\n"
-# Don't uncomment this line - we don't want to create a new service!
-# cf create-service ${IBP_NAME} ${IBP_PLAN} ${SERVICE_INSTANCE_NAME}
+cf create-service ${IBP_NAME} ${IBP_PLAN} ${SERVICE_INSTANCE_NAME}
 
 cf create-service-key ${SERVICE_INSTANCE_NAME} ${VCAP_KEY_NAME} -c '{"msp_id":"PeerOrg1"}'
 

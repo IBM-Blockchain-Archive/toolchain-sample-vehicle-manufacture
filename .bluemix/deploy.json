@@ -35,7 +35,9 @@
 		}
 	},
 	"required": [
-		"cloud-region",
+        "prod-region",
+        "prod-organization",
+        "prod-space",
 		"prod-app-name"
 	],
 	"form": [
@@ -89,21 +91,19 @@
 						"$ref": "#/messages/prodStage"
 					}
 				},
-				{
-					"type": "text",
-					"key": "cloud-region",
-					"readonly": true
-				},
-				{
-					"type": "text",
-					"key": "org-name",
-					"readonly": true
-				},
-				{
-					"type": "text",
-					"key": "space-name",
-					"readonly": true
-				}
+                {
+                    "type": "select",
+                    "key": "prod-region"
+                },
+                {
+                    "type": "select",
+                    "key": "prod-organization"
+                },
+                {
+                    "type": "select",
+                    "key": "prod-space",
+                    "readonly": false
+                }
 			]
 		}
 	]
