@@ -8,7 +8,7 @@ export VCAP_KEY_NAME="Credentials-1"
 export APP_URL="unknown_yet"  # we correct this later
 
 detect_exit() {
-    if [ "$COMPLETED_STEP" != "sample_up" ]; then
+    if [ "$COMPLETED_STEP" != "6" ]; then
       printf "\n\n --- Uh oh something failed... ---\n"
       export COMPLETED_STEP="tc_error"
       if [ "$API_URL" != "" ]; then
@@ -63,6 +63,7 @@ push_restserver() {
     printf "\n----- Pushing REST server ----- \n"
     cf push composer-rest-server-${CF_APP} --docker-image sstone1/composer-rest-server:0.18.1 -c "composer-rest-server -c admin@vehicle-manufacture-network -n never -w true" -i 1 -m 256M --no-start --no-manifest
     cf set-env composer-rest-server-${CF_APP} NODE_CONFIG "${NODE_CONFIG}"
+
     date
     printf "\n----- Pushed REST server ----- \n"
 }
@@ -71,8 +72,6 @@ start_restserver() {
     printf "\n----- Start REST server ----- \n"
     date
     cf start composer-rest-server-${CF_APP}
-
-    export REST_SERVER_URL=$(cf app composer-rest-server-${CF_APP} | grep routes: | awk '{print $2}')
     date
     printf "\n----- Started REST server ----- \n"
 }
@@ -81,8 +80,7 @@ push_app() {
     # Push app (don't start yet, wait for binding)
     date
     printf "\n --- Pushing the Vehicle manufacture application '${CF_APP}' ---\n"
-    cf push ${CF_APP} --no-start -c "node server/app.js"
-    cf set-env ${CF_APP} REST_SERVER_CONFIG "{\"webSocketURL\": \"wss://${REST_SERVER_URL}\", \"httpURL\": \"https://${REST_SERVER_URL}/api\"}"
+    cf push ${CF_APP} --docker-image sstone1/vehicle-manufacture-tutorial -i 1 -m 128M --no-start --no-manifest
     date
     printf "\n --- Pushed the Vehicle manufacture application '${CF_APP}' ---\n"
 }
@@ -92,6 +90,9 @@ start_app() {
     date
     printf "\n --- Binding the IBM Blockchain Platform service to Vehicle manufacture app ---\n"
     cf bind-service ${CF_APP} ${SERVICE_INSTANCE_NAME} -c "{\"permissions\":\"read-only\"}"
+
+    export REST_SERVER_URL=$(cf app composer-rest-server-${CF_APP} | grep routes: | awk '{print $2}')
+    cf set-env ${CF_APP} REST_SERVER_CONFIG "{\"webSocketURL\": \"wss://${REST_SERVER_URL}\", \"httpURL\": \"https://${REST_SERVER_URL}/api\"}"
 
     # Start her up
     date
@@ -170,7 +171,8 @@ fi
 # -----------------------------------------------------------
 date
 printf "\n --- Creating an instance of the IBM Blockchain Platform service ---\n"
-cf create-service ${IBP_NAME} ${IBP_PLAN} ${SERVICE_INSTANCE_NAME}
+# Don't uncomment this line - we don't want to create a new service!
+# cf create-service ${IBP_NAME} ${IBP_PLAN} ${SERVICE_INSTANCE_NAME}
 
 cf create-service-key ${SERVICE_INSTANCE_NAME} ${VCAP_KEY_NAME} -c '{"msp_id":"PeerOrg1"}'
 
