@@ -129,6 +129,7 @@ else
     export SERVICE_INSTANCE_NAME="blockchain-${CF_APP}"
 fi
     printf "Using service instance name '${SERVICE_INSTANCE_NAME}'\n"
+    printf "Deploying in region: ${CLOUD_REGION_ID}"
 
 # -----------------------------------------------------------
 # 1. Test if everything we need is set
